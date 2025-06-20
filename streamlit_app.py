@@ -7,7 +7,6 @@ st.markdown("Welcome to the **OptiSys Integration Suite**. Use the sidebar to ac
 st.markdown("- 🧠 Integration Trigger Panel")
 st.markdown("- 📡 Live Integration Logs")
 st.markdown("- ⚙️ Product Configuration")
-'''
 
 with open(os.path.join(base_path, "app.py"), "w") as f:
     f.write(app_py)
