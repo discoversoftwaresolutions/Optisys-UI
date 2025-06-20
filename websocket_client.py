@@ -2,7 +2,7 @@ import asyncio
 import streamlit as st
 import websockets
 
-WS_URL = "wss://optisys-agent-production.up.railway.app
+WS_URL = "wss:API_BASE = "https://optisys-agent.up.railway.app/api/integrations/trigger"
 
 def render_logs_tab():
     st.title("📡 Real-Time Integration Logs")
