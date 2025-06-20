@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # 🔗 Dynamic API base URL
-API_BASE = os.getenv("API_BASE", "optisys-agent-production.up.railway.app")
+API_BASE = os.getenv("API_BASE", API_BASE = "https://optisys-api.up.railway.app/api/integrations/trigger"
+
 TRIGGER_ENDPOINT = f"{API_BASE}/integrations/trigger"
 
 st.set_page_config(page_title="OptiSys Product Integrator", layout="centered")
