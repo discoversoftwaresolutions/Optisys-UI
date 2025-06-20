@@ -1,0 +1,7 @@
+streamlit
+boto3
+google-cloud-secret-manager
+google-cloud-kms
+websockets
+asyncio
+python-dotenv
