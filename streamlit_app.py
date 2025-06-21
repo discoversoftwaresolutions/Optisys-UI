@@ -34,3 +34,20 @@ if st.button("🛰️ Connect to WebSocket"):
     start_ws_client()
 
 st.text_area("📋 Log Stream", "\n".join(st.session_state.log_lines[-100:]), height=400)
+import streamlit as st
+import asyncio
+import websockets
+
+WS_URL = "wss://optisys-agent-production.up.railway.app/ws/progress"
+
+async def log_handler():
+    try:
+        async with websockets.connect(WS_URL) as ws:
+            while True:
+                msg = await ws.recv()
+                st.session_state.log_lines.append(msg)
+                st.experimental_rerun()
+    except websockets.exceptions.InvalidStatus as e:
+        st.error(f"⚠️ WebSocket error: Invalid status - {e}")
+    except Exception as e:
+        st.error(f"❌ WebSocket error: {e}")
