@@ -35,9 +35,7 @@ if st.button("🛰️ Connect to WebSocket"):
     start_ws_client()
 
 st.text_area("📋 Log Stream", "\n".join(st.session_state.log_lines[-100:]), height=400)
-import streamlit as st
-import asyncio
-import websockets
+
 
 WS_URL = "wss://optisys-agent-production.up.railway.app/ws/progress"
 
