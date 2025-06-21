@@ -2,6 +2,7 @@ import os
 import asyncio
 import streamlit as st
 import websockets
+from utils.ws_client import log_handler
 
 st.set_page_config(page_title="OptiSys Suite", layout="wide")
 st.title("🔧 OptiSys Autonomous Integration Dashboard")
