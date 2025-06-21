@@ -11,13 +11,6 @@ st.markdown("- ⚙️ Product Configuration")
 with open(os.path.join(base_path, "app.py"), "w") as f:
     f.write(app_py)
 
-# Write log_view.py in pages/
-log_view_py = 
-import asyncio
-import streamlit as st
-import websockets
-import os
-
 st.set_page_config(page_title="📡 Integration Logs", layout="centered")
 st.title("📡 Real-Time Integration Logs")
 
