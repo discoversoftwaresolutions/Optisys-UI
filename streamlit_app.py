@@ -1,4 +1,7 @@
+import os
+import asyncio
 import streamlit as st
+import websockets
 
 st.set_page_config(page_title="OptiSys Suite", layout="wide")
 st.title("🔧 OptiSys Autonomous Integration Dashboard")
@@ -8,9 +11,7 @@ st.markdown("- 🧠 Integration Trigger Panel")
 st.markdown("- 📡 Live Integration Logs")
 st.markdown("- ⚙️ Product Configuration")
 
-with open(os.path.join(base_path, "app.py"), "w") as f:
-    f.write(app_py)
-
+st.markdown("---")
 st.set_page_config(page_title="📡 Integration Logs", layout="centered")
 st.title("📡 Real-Time Integration Logs")
 
@@ -19,15 +20,15 @@ WS_URL = os.getenv("WS_URL", "wss://optisys-agent-production.up.railway.app/ws/p
 if "log_lines" not in st.session_state:
     st.session_state.log_lines = []
 
-def start_ws_client():
-    asyncio.run(log_handler())
-
 async def log_handler():
     async with websockets.connect(WS_URL) as ws:
         while True:
             msg = await ws.recv()
             st.session_state.log_lines.append(msg)
             st.experimental_rerun()
+
+def start_ws_client():
+    asyncio.run(log_handler())
 
 if st.button("🛰️ Connect to WebSocket"):
     start_ws_client()
