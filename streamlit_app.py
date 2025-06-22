@@ -3,20 +3,18 @@ import asyncio
 import streamlit as st
 import websockets
 
-from utils.ws_client import log_handler  # Presuming this exists, or else remove
-
-# ✅ Page config and heading
+# ✅ Page config and title
 st.set_page_config(page_title="OptiSys Suite", layout="wide")
 st.title("🔧 OptiSys Autonomous Integration Dashboard")
 
-# ✅ Overview
+# ✅ Introduction
 st.markdown("Welcome to the **OptiSys Integration Suite**. Use the sidebar to access:")
 st.markdown("- 🧠 Integration Trigger Panel")
 st.markdown("- 📡 Live Integration Logs")
 st.markdown("- ⚙️ Product Configuration")
 st.markdown("---")
 
-# ✅ Log Stream Section
+# ✅ Live Log Stream Viewer
 st.subheader("📡 Real-Time Integration Logs")
 
 WS_URL = os.getenv("WS_URL", "wss://optisys-agent-production.up.railway.app/ws/progress")
@@ -28,25 +26,28 @@ async def start_log_listener():
     try:
         async with websockets.connect(WS_URL) as ws:
             while True:
-                msg = await ws.recv()
-                st.session_state.log_lines.append(msg)
-                await asyncio.sleep(0.1)
-                st.experimental_rerun()
-    except websockets.exceptions.InvalidStatus as e:
-        st.error(f"⚠️ WebSocket error: Invalid status - {e}")
+                try:
+                    msg = await ws.recv()
+                    st.session_state.log_lines.append(msg)
+                    await asyncio.sleep(0.1)
+                    st.experimental_rerun()
+                except websockets.exceptions.ConnectionClosed:
+                    st.warning("🔌 WebSocket connection closed.")
+                    break
+    except websockets.exceptions.InvalidStatusCode as e:
+        st.error(f"⚠️ WebSocket failed: {e}")
     except Exception as e:
-        st.error(f"❌ WebSocket error: {e}")
+        st.error(f"❌ Unexpected WebSocket error: {e}")
 
 if st.button("🛰️ Connect to WebSocket"):
     asyncio.run(start_log_listener())
 
 st.text_area("📋 Log Stream", "\n".join(st.session_state.log_lines[-100:]), height=400)
 
-# ✅ Optional: Integration Insights (shown after a successful integration run)
-# Note: 'result' must already be defined in the session or imported for this to work
+# ✅ Integration Insights Panel (if available)
 if "result" in st.session_state:
     result = st.session_state["result"]
-    
+
     st.markdown("### 🔍 Integration Insights")
     st.json({
         "recommended_sdk": result.get("analysis", {}).get("recommended_sdk"),
