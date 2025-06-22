@@ -1,17 +1,23 @@
 import streamlit as st
-import requests
 
-st.title("📦 Discover Product Catalog")
+st.set_page_config(page_title="OptiSys Stack Integrations", layout="wide")
+st.title("📦 Discover Available Stack Integrations")
 
-PRODUCTS_API = "https://optisys-agent-production.up.railway.app/api/products/"
+st.markdown("""
+OptiSys dynamically recommends integrations based on a customer's tech stack.
+Product catalog browsing has been deprecated in favor of **autonomous stack-driven integration**.
+""")
 
-try:
-    response = requests.get(PRODUCTS_API)
-    response.raise_for_status()
-    products = response.json().get("products", [])
-    for product in products:
-        st.subheader(product.get("name", "Unnamed"))
-        st.markdown(f"📄 Docs: {product.get('docs_url', 'N/A')}")
-        st.json(product)
-except Exception as e:
-    st.error(f"Could not fetch product catalog: {e}")
+# Placeholder logic for now
+example_stack = [
+    {"name": "SecurePact", "type": "Compliance", "autonomous": True},
+    {"name": "StratEx", "type": "Analytics", "autonomous": False},
+    {"name": "CarbonIQ", "type": "Performance Optimization", "autonomous": True}
+]
+
+st.markdown("### 🧠 Available Integrations")
+for item in example_stack:
+    icon = "🤖" if item["autonomous"] else "🛠️"
+    st.markdown(f"- {icon} **{item['name']}** — _{item['type']}_")
+
+st.info("To launch an integration, visit the Integration Trigger Panel in the sidebar.")
