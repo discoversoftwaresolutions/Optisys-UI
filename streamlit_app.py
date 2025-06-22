@@ -3,6 +3,17 @@ import asyncio
 import streamlit as st
 import websockets
 from utils.ws_client import log_handler
+from utils.api import fetch_products
+
+st.title("🛒 Post-Purchase Products")
+
+if st.button("Load Catalog"):
+    try:
+        products = fetch_products()
+        st.json(products)
+    except Exception as e:
+        st.error(f"Failed to load: {e}")
+
 
 st.set_page_config(page_title="OptiSys Suite", layout="wide")
 st.title("🔧 OptiSys Autonomous Integration Dashboard")
