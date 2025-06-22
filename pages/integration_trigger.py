@@ -2,9 +2,9 @@ import os
 import streamlit as st
 import requests
 
-st.title("🔗 Product Integration")
+st.title("🔗 OptiSys Full Integration")
 
-API_BASE = os.getenv("API_BASE", "https://optisys-agent-production.up.railway.app/api/integrations/trigger")
+API_BASE = os.getenv("API_BASE", "https://optisys-agent-production.up.railway.app/api/trigger/full")
 
 products = [
     "SecurePact", "CarbonIQ", "StratEx", "DataLakeIQ",
@@ -30,24 +30,28 @@ with st.form("integration_form"):
             "gcp_service_account_json": st.text_area("GCP Service Account JSON")
         }
 
-    submitted = st.form_submit_button("🚀 Trigger Integration")
+    submitted = st.form_submit_button("🚀 Run OptiSys Integration")
 
 if submitted:
-    payload = {
-        "product": product,
-        "customer_id": customer_id,
-        "api_key": api_key,
-        "region": region,
-        "cloud_credentials": cloud_credentials
-    }
+    # Describe the customer's stack for reasoning
+    stack_description = (
+        f"The customer has purchased {product} and is operating in {region} on {cloud_provider}. "
+        f"Integration should connect this service into their post-purchase flow using available credentials."
+    )
 
-    with st.spinner("🔄 Integrating..."):
+    st.markdown("🧪 **Payload Preview**")
+    st.json({
+        "stack_description": stack_description
+    })
+
+    with st.spinner("🤖 OptiSys is reasoning, integrating, and validating..."):
         try:
-            response = requests.post(API_BASE, json=payload)
+            response = requests.post(API_BASE, json={"stack_description": stack_description})
             response.raise_for_status()
-            result = response.json()
+            result = response.json().get("result", {})
             st.success("✅ Integration Complete!")
-            if 'dashboard_url' in result:
-                st.markdown(f"[📊 View Dashboard]({result['dashboard_url']})")
+            st.json(result)
+        except requests.exceptions.HTTPError as e:
+            st.error(f"❌ Integration failed with status {response.status_code}: {response.text}")
         except Exception as e:
-            st.error(f"❌ Integration Failed: {e}")
+            st.error(f"💥 Unexpected error: {e}")
