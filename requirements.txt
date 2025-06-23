@@ -6,3 +6,4 @@ websockets
 asyncio
 python-dotenv
 streamlit-extras
+websocket-client
