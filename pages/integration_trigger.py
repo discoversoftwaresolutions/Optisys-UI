@@ -88,3 +88,16 @@ if submitted:
             st.error(f"❌ Integration failed with status {response.status_code}: {response.text}")
         except Exception as e:
             st.error(f"💥 Unexpected error: {e}")
+session_id = f"{product}_{customer_id}"
+
+st.components.v1.html(f"""
+    <script>
+    const ws = new WebSocket("wss://optisys-agent-production.up.railway.app/ws/progress?product={product}&customer_id={customer_id}");
+    ws.onmessage = function(event) {{
+        const logBox = document.getElementById("log");
+        logBox.innerHTML += "<div>" + event.data + "</div>";
+        logBox.scrollTop = logBox.scrollHeight;
+    }};
+    </script>
+    <div id="log" style="background:#111;color:#0f0;padding:1em;height:300px;overflow:auto;font-family:monospace;"></div>
+""", height=320)
