@@ -7,11 +7,9 @@ st.title("🔗 OptiSys Full Integration")
 
 API_BASE = os.getenv("API_BASE", "https://optisys-agent-production.up.railway.app/api/integrations/trigger")
 
-# Setup session state for sensitive field toggling and inputs
-if "cloud_provider" not in st.session_state:
-    st.session_state["cloud_provider"] = "AWS"
+# Store user's debug toggle + selected provider
 if "show_secrets" not in st.session_state:
-    st.session_state["show_secrets"] = False
+    st.session_state.show_secrets = False
 
 products = [
     "SecurePact", "CarbonIQ", "StratEx", "DataLakeIQ",
@@ -20,57 +18,47 @@ products = [
 
 product = st.selectbox("Select a Product", products)
 
+# Select provider OUTSIDE form so it triggers a re-render
+cloud_provider = st.selectbox("Cloud Provider", ["AWS", "GCP", "Azure", "Oracle"])
+provider = cloud_provider.lower()
+st.session_state["cloud_provider"] = provider
+
+st.checkbox("🔍 Show sensitive fields for debugging", key="show_secrets")
+
 with st.form("integration_form"):
     customer_id = st.text_input("Customer ID", value="demo-customer-001")
     api_key = st.text_input("API Key", value="xyz-abc-123")
     region = st.selectbox("Region", ["us-east-1", "us-west-2", "eu-central-1"])
 
-    # Update provider and clear previous credentials when changed
-    cloud_provider = st.selectbox(
-        "Cloud Provider",
-        ["AWS", "GCP", "Azure", "Oracle"],
-        index=["AWS", "GCP", "Azure", "Oracle"].index(st.session_state["cloud_provider"]),
-        on_change=lambda: st.session_state.update({"cloud_provider": st.session_state.cloud_provider, "credentials_set": False}),
-        key="cloud_provider"
-    )
-    provider = cloud_provider.lower()
-
-    st.checkbox("🔍 Show sensitive fields for debugging", key="show_secrets")
-
     cloud_credentials = {}
 
-    # Conditionally render credential fields based on provider
     if cloud_provider == "AWS":
         cloud_credentials = {
-            "access_key": st.text_input("AWS Access Key", key="aws_access"),
-            "secret_key": st.text_input("AWS Secret Key", type=None if st.session_state.show_secrets else "password", key="aws_secret"),
-            "session_token": st.text_input("Session Token", value="", type=None if st.session_state.show_secrets else "password", help="Optional", key="aws_token")
+            "access_key": st.text_input("AWS Access Key"),
+            "secret_key": st.text_input("AWS Secret Key", type=None if st.session_state.show_secrets else "password"),
+            "session_token": st.text_input("Session Token", value="", type=None if st.session_state.show_secrets else "password", help="Optional")
         }
 
     elif cloud_provider == "GCP":
         cloud_credentials = {
-            "gcp_service_account_json": st.text_area(
-                "GCP Service Account JSON",
-                help="Paste the entire service account JSON key",
-                key="gcp_json"
-            )
+            "gcp_service_account_json": st.text_area("GCP Service Account JSON", help="Paste entire service account JSON")
         }
 
     elif cloud_provider == "Azure":
         cloud_credentials = {
-            "tenant_id": st.text_input("Azure Tenant ID", key="azure_tenant"),
-            "client_id": st.text_input("Azure Client ID", key="azure_client"),
-            "client_secret": st.text_input("Azure Client Secret", type=None if st.session_state.show_secrets else "password", key="azure_secret"),
-            "subscription_id": st.text_input("Azure Subscription ID", key="azure_sub")
+            "tenant_id": st.text_input("Azure Tenant ID"),
+            "client_id": st.text_input("Azure Client ID"),
+            "client_secret": st.text_input("Azure Client Secret", type=None if st.session_state.show_secrets else "password"),
+            "subscription_id": st.text_input("Azure Subscription ID")
         }
 
     elif cloud_provider == "Oracle":
         cloud_credentials = {
-            "tenancy_ocid": st.text_input("Oracle Tenancy OCID", key="oracle_tenancy"),
-            "user_ocid": st.text_input("Oracle User OCID", key="oracle_user"),
-            "fingerprint": st.text_input("API Key Fingerprint", key="oracle_fp"),
-            "private_key": st.text_area("Private Key PEM", type=None if st.session_state.show_secrets else "password", key="oracle_key"),
-            "region": st.text_input("Oracle Region", value="us-ashburn-1", key="oracle_region")
+            "tenancy_ocid": st.text_input("Oracle Tenancy OCID"),
+            "user_ocid": st.text_input("Oracle User OCID"),
+            "fingerprint": st.text_input("API Key Fingerprint"),
+            "private_key": st.text_area("Private Key PEM", type=None if st.session_state.show_secrets else "password"),
+            "region": st.text_input("Oracle Region", value="us-ashburn-1")
         }
 
     st.caption("🔒 Credentials are used only for this integration session and are never stored.")
