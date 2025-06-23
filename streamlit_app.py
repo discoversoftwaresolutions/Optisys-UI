@@ -1,55 +1,38 @@
 import streamlit as st
+from datetime import datetime
 
-st.set_page_config(page_title="OptiSys Stack Integrations", layout="wide")
-st.title("📦 Discover Available Stack Integrations")
+st.set_page_config(page_title="OptiSys Console", layout="wide")
+st.title("🎯 OptiSys Launch Console")
 
+st.markdown("Welcome back. Here's everything that matters right now—summarized and actionable.")
+
+# ----- INSTANT ACTIONS -----
+st.subheader("⚡ Quick Commands")
+st.button("🔄 Run Stack Integration")
+st.button("🚀 Trigger SecurePact Now")
+st.button("🧠 Generate Stack-Based Recommendations")
+
+# ----- CURRENT SESSION CONTEXT -----
+st.subheader("🛠️ Latest Session")
+col1, col2 = st.columns(2)
+col1.code("Session ID: SecurePact_demo001")
+col2.metric("Last Status", "✅ Completed")
+
+# ----- RECENT EVENT FEED -----
+st.subheader("📜 Recent Activity")
 st.markdown("""
-OptiSys recommends post-purchase integrations based on your customer's stack.
-Browse integrations or paste a tech stack description to receive custom suggestions.
+- ✅ Integration `SecurePact_demo001` completed at `10:42 AM`
+- ⚙️ Stack scan ran for merchant `CarbonIQ_demo01` at `10:25 AM`
+- ❌ StratEx trial integration failed at `9:58 AM`
 """)
 
-# Example integration data
-example_stack = [
-    {
-        "name": "SecurePact",
-        "type": "Compliance",
-        "autonomous": True,
-        "description": "Capture and forward webhook events securely."
-    },
-    {
-        "name": "StratEx",
-        "type": "Analytics",
-        "autonomous": False,
-        "description": "Perform post-purchase data enrichment and cohort analysis."
-    },
-    {
-        "name": "CarbonIQ",
-        "type": "Performance Optimization",
-        "autonomous": True,
-        "description": "Track and optimize your stack’s sustainability footprint."
-    }
-]
+# ----- SYSTEM STATUS PULSE -----
+st.subheader("🔋 System Pulse")
+col3, col4, col5 = st.columns(3)
+col3.success("API: Online")
+col4.success("WebSocket: Live")
+col5.success("Database: ✅ Connected")
 
-# Sidebar filters
-autonomous_only = st.sidebar.checkbox("🤖 Show Autonomous Only")
-
-# Dynamic Stack Suggestions (optional future hook)
-stack_input = st.text_area("💡 Paste Customer Stack Description")
-if st.button("Suggest Integrations"):
-    st.warning("Integration suggestion logic coming soon...")
-    # Later: hook this to `suggest_integrations(...)` API
-
-# Integration browser
-st.markdown("### 🔍 Available Integrations")
-
-for item in example_stack:
-    if autonomous_only and not item["autonomous"]:
-        continue
-
-    with st.expander(f"{item['name']} — {item['type']}"):
-        st.markdown(item["description"])
-        icon = "✅ Autonomous" if item["autonomous"] else "🧰 Manual Configuration Required"
-        st.write(f"**Mode**: {icon}")
-        st.button(f"🚀 Trigger {item['name']}", key=item["name"])
-
-st.info("To launch a stack-based integration, paste a stack description or select an item above.")
+# ----- INSIGHT OF THE MOMENT -----
+st.markdown("### 🧠 Stack Tip of the Day")
+st.info("Most Shopify+ stores improved conversion by adding HoloUX within 2 mins of checkout. Want to try it?")
