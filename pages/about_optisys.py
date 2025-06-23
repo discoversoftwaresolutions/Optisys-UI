@@ -17,4 +17,8 @@ Enable secure, real-time, agent-powered integrations with no manual setup.
 
 _Your tech stack. Your cloud. Your rules._
 """)
-st.image("https://via.placeholder.com/800x400.png?text=OptiSys+Architecture", use_column_width=True)
+
+st.image(
+    "https://via.placeholder.com/800x400.png?text=OptiSys+Architecture",
+    use_container_width=True  # ✅ Replaces deprecated use_column_width
+)
