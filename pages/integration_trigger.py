@@ -7,6 +7,12 @@ st.title("🔗 OptiSys Full Integration")
 
 API_BASE = os.getenv("API_BASE", "https://optisys-agent-production.up.railway.app/api/integrations/trigger")
 
+# Setup session state for sensitive field toggling and inputs
+if "cloud_provider" not in st.session_state:
+    st.session_state["cloud_provider"] = "AWS"
+if "show_secrets" not in st.session_state:
+    st.session_state["show_secrets"] = False
+
 products = [
     "SecurePact", "CarbonIQ", "StratEx", "DataLakeIQ",
     "IntellicoreAGI", "ProverbsAPI", "Nexonomy", "Enginuty", "HoloUX"
@@ -19,68 +25,56 @@ with st.form("integration_form"):
     api_key = st.text_input("API Key", value="xyz-abc-123")
     region = st.selectbox("Region", ["us-east-1", "us-west-2", "eu-central-1"])
 
-    cloud_provider = st.selectbox("Cloud Provider", ["AWS", "GCP", "Azure", "Oracle"])
+    # Update provider and clear previous credentials when changed
+    cloud_provider = st.selectbox(
+        "Cloud Provider",
+        ["AWS", "GCP", "Azure", "Oracle"],
+        index=["AWS", "GCP", "Azure", "Oracle"].index(st.session_state["cloud_provider"]),
+        on_change=lambda: st.session_state.update({"cloud_provider": st.session_state.cloud_provider, "credentials_set": False}),
+        key="cloud_provider"
+    )
     provider = cloud_provider.lower()
 
-    show_secrets = st.checkbox("🔍 Show sensitive fields for debugging")
+    st.checkbox("🔍 Show sensitive fields for debugging", key="show_secrets")
 
     cloud_credentials = {}
-    required_fields_filled = True
 
+    # Conditionally render credential fields based on provider
     if cloud_provider == "AWS":
-        access_key = st.text_input("AWS Access Key")
-        secret_key = st.text_input("AWS Secret Key", type=None if show_secrets else "password")
-        session_token = st.text_input("Session Token", value="", help="Optional", type=None if show_secrets else "password")
-
         cloud_credentials = {
-            "access_key": access_key,
-            "secret_key": secret_key,
-            "session_token": session_token
+            "access_key": st.text_input("AWS Access Key", key="aws_access"),
+            "secret_key": st.text_input("AWS Secret Key", type=None if st.session_state.show_secrets else "password", key="aws_secret"),
+            "session_token": st.text_input("Session Token", value="", type=None if st.session_state.show_secrets else "password", help="Optional", key="aws_token")
         }
-
-        required_fields_filled = all([access_key, secret_key])
 
     elif cloud_provider == "GCP":
-        gcp_json = st.text_area("GCP Service Account JSON", help="Paste the entire service account JSON key")
-        cloud_credentials = {"gcp_service_account_json": gcp_json}
-        required_fields_filled = bool(gcp_json.strip())
+        cloud_credentials = {
+            "gcp_service_account_json": st.text_area(
+                "GCP Service Account JSON",
+                help="Paste the entire service account JSON key",
+                key="gcp_json"
+            )
+        }
 
     elif cloud_provider == "Azure":
-        tenant_id = st.text_input("Azure Tenant ID")
-        client_id = st.text_input("Azure Client ID")
-        client_secret = st.text_input("Azure Client Secret", type=None if show_secrets else "password")
-        subscription_id = st.text_input("Azure Subscription ID")
-
         cloud_credentials = {
-            "tenant_id": tenant_id,
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "subscription_id": subscription_id
+            "tenant_id": st.text_input("Azure Tenant ID", key="azure_tenant"),
+            "client_id": st.text_input("Azure Client ID", key="azure_client"),
+            "client_secret": st.text_input("Azure Client Secret", type=None if st.session_state.show_secrets else "password", key="azure_secret"),
+            "subscription_id": st.text_input("Azure Subscription ID", key="azure_sub")
         }
-
-        required_fields_filled = all([tenant_id, client_id, client_secret, subscription_id])
 
     elif cloud_provider == "Oracle":
-        tenancy_ocid = st.text_input("Oracle Tenancy OCID")
-        user_ocid = st.text_input("Oracle User OCID")
-        fingerprint = st.text_input("API Key Fingerprint")
-        private_key = st.text_area("Private Key PEM", type=None if show_secrets else "password")
-        oracle_region = st.text_input("Oracle Region", value="us-ashburn-1")
-
         cloud_credentials = {
-            "tenancy_ocid": tenancy_ocid,
-            "user_ocid": user_ocid,
-            "fingerprint": fingerprint,
-            "private_key": private_key,
-            "region": oracle_region
+            "tenancy_ocid": st.text_input("Oracle Tenancy OCID", key="oracle_tenancy"),
+            "user_ocid": st.text_input("Oracle User OCID", key="oracle_user"),
+            "fingerprint": st.text_input("API Key Fingerprint", key="oracle_fp"),
+            "private_key": st.text_area("Private Key PEM", type=None if st.session_state.show_secrets else "password", key="oracle_key"),
+            "region": st.text_input("Oracle Region", value="us-ashburn-1", key="oracle_region")
         }
 
-        required_fields_filled = all([tenancy_ocid, user_ocid, fingerprint, private_key, oracle_region])
-
     st.caption("🔒 Credentials are used only for this integration session and are never stored.")
-
-    form_ready = all([product, customer_id, api_key, region, provider, required_fields_filled])
-    submitted = st.form_submit_button("🚀 Run OptiSys Integration", disabled=not form_ready)
+    submitted = st.form_submit_button("🚀 Run OptiSys Integration")
 
 if submitted:
     payload = {
