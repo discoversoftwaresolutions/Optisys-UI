@@ -1,57 +1,55 @@
-import os
-import asyncio
 import streamlit as st
-import websockets
 
-# ✅ Page config and title
-st.set_page_config(page_title="OptiSys Suite", layout="wide")
-st.title("🔧 OptiSys Autonomous Integration Dashboard")
+st.set_page_config(page_title="OptiSys Stack Integrations", layout="wide")
+st.title("📦 Discover Available Stack Integrations")
 
-# ✅ Introduction
-st.markdown("Welcome to the **OptiSys Integration Suite**. Use the sidebar to access:")
-st.markdown("- 🧠 Integration Trigger Panel")
-st.markdown("- 📡 Live Integration Logs")
-st.markdown("- ⚙️ Product Configuration")
-st.markdown("---")
+st.markdown("""
+OptiSys recommends post-purchase integrations based on your customer's stack.
+Browse integrations or paste a tech stack description to receive custom suggestions.
+""")
 
-# ✅ Live Log Stream Viewer
-st.subheader("📡 Real-Time Integration Logs")
+# Example integration data
+example_stack = [
+    {
+        "name": "SecurePact",
+        "type": "Compliance",
+        "autonomous": True,
+        "description": "Capture and forward webhook events securely."
+    },
+    {
+        "name": "StratEx",
+        "type": "Analytics",
+        "autonomous": False,
+        "description": "Perform post-purchase data enrichment and cohort analysis."
+    },
+    {
+        "name": "CarbonIQ",
+        "type": "Performance Optimization",
+        "autonomous": True,
+        "description": "Track and optimize your stack’s sustainability footprint."
+    }
+]
 
-WS_URL = os.getenv("WS_URL", "wss://optisys-agent-production.up.railway.app/ws/progress")
+# Sidebar filters
+autonomous_only = st.sidebar.checkbox("🤖 Show Autonomous Only")
 
-if "log_lines" not in st.session_state:
-    st.session_state.log_lines = []
+# Dynamic Stack Suggestions (optional future hook)
+stack_input = st.text_area("💡 Paste Customer Stack Description")
+if st.button("Suggest Integrations"):
+    st.warning("Integration suggestion logic coming soon...")
+    # Later: hook this to `suggest_integrations(...)` API
 
-async def start_log_listener():
-    try:
-        async with websockets.connect(WS_URL) as ws:
-            while True:
-                try:
-                    msg = await ws.recv()
-                    st.session_state.log_lines.append(msg)
-                    await asyncio.sleep(0.1)
-                    st.experimental_rerun()
-                except websockets.exceptions.ConnectionClosed:
-                    st.warning("🔌 WebSocket connection closed.")
-                    break
-    except websockets.exceptions.InvalidStatusCode as e:
-        st.error(f"⚠️ WebSocket failed: {e}")
-    except Exception as e:
-        st.error(f"❌ Unexpected WebSocket error: {e}")
+# Integration browser
+st.markdown("### 🔍 Available Integrations")
 
-if st.button("🛰️ Connect to WebSocket"):
-    asyncio.run(start_log_listener())
+for item in example_stack:
+    if autonomous_only and not item["autonomous"]:
+        continue
 
-st.text_area("📋 Log Stream", "\n".join(st.session_state.log_lines[-100:]), height=400)
+    with st.expander(f"{item['name']} — {item['type']}"):
+        st.markdown(item["description"])
+        icon = "✅ Autonomous" if item["autonomous"] else "🧰 Manual Configuration Required"
+        st.write(f"**Mode**: {icon}")
+        st.button(f"🚀 Trigger {item['name']}", key=item["name"])
 
-# ✅ Integration Insights Panel (if available)
-if "result" in st.session_state:
-    result = st.session_state["result"]
-
-    st.markdown("### 🔍 Integration Insights")
-    st.json({
-        "recommended_sdk": result.get("analysis", {}).get("recommended_sdk"),
-        "deployment_target": result.get("analysis", {}).get("deployment_target"),
-        "license_ok": result.get("compliance", {}).get("license_ok"),
-        "regression_detected": result.get("performance", {}).get("regression_detected")
-    })
+st.info("To launch a stack-based integration, paste a stack description or select an item above.")
