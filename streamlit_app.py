@@ -4,7 +4,6 @@ from datetime import datetime
 st.set_page_config(page_title="OptiSys Console", layout="wide")
 st.title("🎯 OptiSys Launch Console")
 
-st.markdown("Welcome back. Here's everything that matters right now—summarized and actionable.")
 
 # ----- INSTANT ACTIONS -----
 st.subheader("⚡ Quick Commands")
