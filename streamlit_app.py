@@ -9,7 +9,7 @@ from datetime import datetime
 st.set_page_config(page_title="OptiSys Console", layout="wide")
 st.title("🎯 OptiSys Launch Console")
 
-API_URL = "http://localhost:8000"
+API_URL = "http://localhost:8000"  # Replace if deployed
 WS_HOST = "ws://localhost:8000"
 
 PRODUCTS = [
@@ -32,11 +32,12 @@ def stream_logs(session_id, ws_url):
     threading.Thread(target=run, daemon=True).start()
     time.sleep(1)
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
-    "📡 Live Logs", "📦 Stack Engine", "🧠 AgentBridge", 
-    "🗂 Upload Products", "📊 System Pulse", 
-    "🔐 Credentials", "💡 Suggestions", "🧭 Backend Pulse"
-])
+def render(client_id):
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+        "📡 Live Logs", "📦 Stack Engine", "🧠 AgentBridge",
+        "🗂 Upload Products", "📊 System Pulse",
+        "🔐 Credentials", "💡 Suggestions", "🧭 Backend Pulse"
+    ])
 
     with tab1:
         st.subheader("🖥️ Real-Time Integration Logs")
@@ -178,10 +179,8 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
             except Exception as e:
                 st.error(f"Suggestion fetch failed: {e}")
 
-    # --- Tab 8: Backend Pulse ---
     with tab8:
         st.subheader("🧭 Backend Health & Diagnostics")
-
         try:
             health = requests.get(f"{API_URL}/health").json()
             st.success(f"API Status: 🟢 {health.get('status', 'unknown')}")
@@ -197,6 +196,6 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
 
         st.caption("Pro Tip: Use `check_backend.py` locally to validate endpoints fast.")
 
-# --- Launch Dashboard ---
+# Launch it
 if __name__ == "__main__":
     render("demo-client")
