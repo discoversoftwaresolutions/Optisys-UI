@@ -206,9 +206,9 @@ def render(client_id):
         except Exception as e:
             st.error(f"❌ /health route unreachable: {e}")
 
-       try:
-    client_data = requests.get(f"{API_URL}/client/info/demo-client").json()
-    st.info("Client Metadata (demo-client):")
-    st.json(client_data)
-except Exception as e:
-    st.warning(f"⚠️ Could not fetch client info: {e}")
+        try:
+            client_data = requests.get(f"{API_URL}/client/info/demo-client").json()
+            st.info("Client Metadata (demo-client):")
+            st.json(client_data)
+        except Exception as e:
+            st.warning(f"⚠️ Could not fetch client info: {e}")
