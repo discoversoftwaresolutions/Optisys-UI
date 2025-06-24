@@ -141,3 +141,19 @@ with tab5:
             st.json(r.json())
         except Exception as e:
             st.error(f"Agent run failed: {e}")
+
+tab6 = st.tabs(["🔐 Credentials"])[0]
+with tab6:
+    st.subheader("🔑 Client Secret Manager")
+    target_client = st.text_input("Client ID", value="demo-client")
+    if st.button("🔍 Check Secrets"):
+        try:
+            r = requests.get(f"{API_URL}/client/secrets/check/{target_client}")
+            resp = r.json()
+            st.success(f"✅ Keys Present: {resp['valid_keys']}")
+            if resp["missing"]:
+                st.warning(f"❌ Missing: {resp['missing']}")
+            else:
+                st.success("🟢 All required secrets provided.")
+        except Exception as e:
+            st.error(f"Secret check failed: {e}")
