@@ -51,8 +51,8 @@ def render(client_id):
             ws_url = f"{WS_HOST}/ws/progress?product={product}&customer_id={client}"
             stream_logs(sid, ws_url)
 
-    # --- Tab 2: Stack-Based Dispatcher ---
-    with tab2:
+   # --- Tab 2: Stack-Based Dispatcher ---
+with tab2:
     st.subheader("⚙️ Describe Your Stack")
     stack = st.text_area("Stack Description", placeholder="e.g., FastAPI + GCP + PostgreSQL")
     context = st.text_area("Optional JSON Context", value='{}')
@@ -143,7 +143,6 @@ with tab5:
             st.error(f"Agent run failed: {e}")
 
 # --- Tab 6: Client Credentials ---
-tab6 = st.tabs(["🔐 Credentials"])[0]
 with tab6:
     st.subheader("🔑 Client Secret Manager")
     target_client = st.text_input("Client ID", value="demo-client", key="client_id_secrets")
@@ -159,32 +158,32 @@ with tab6:
         except Exception as e:
             st.error(f"Secret check failed: {e}")
 
-    # --- Tab 7: LLM Suggestions ---
-    with tab7:
-        st.subheader("💡 AI-Curated Stack Suggestions")
-        sugg_client = st.text_input("Client ID", value=client_id)
-        sugg_stack = st.text_area("Stack Description", placeholder="e.g. Redis + AWS Lambda + PostgreSQL")
+# --- Tab 7: LLM Suggestions ---
+with tab7:
+    st.subheader("💡 AI-Curated Stack Suggestions")
+    sugg_client = st.text_input("Client ID", value=client_id)
+    sugg_stack = st.text_area("Stack Description", placeholder="e.g. Redis + AWS Lambda + PostgreSQL")
 
-        if st.button("Get Suggestions"):
-            try:
-                r = requests.get(f"{API_URL}/stack/suggestions", params={
-                    "client_id": sugg_client,
-                    "stack": sugg_stack
-                })
-                recs = r.json().get("recommendations", [])
-                if recs:
-                    for rec in recs:
-                        with st.expander(f"💡 {rec['product']} → {rec['reason']}"):
-                            if st.button(f"🧩 Run {rec['product']}", key=rec['product']):
-                                payload = {
-                                    "description": sugg_stack,
-                                    "context": {"force_product": rec["product"]},
-                                    "client_id": sugg_client
-                                }
-                                res = requests.post(f"{API_URL}/stack/auto-integrate", json=payload)
-                                st.success("✅ Triggered")
-                                st.json(res.json())
-                else:
-                    st.info("No actionable suggestions found.")
-            except Exception as e:
-                st.error(f"Suggestion fetch failed: {e}")
+    if st.button("Get Suggestions"):
+        try:
+            r = requests.get(f"{API_URL}/stack/suggestions", params={
+                "client_id": sugg_client,
+                "stack": sugg_stack
+            })
+            recs = r.json().get("recommendations", [])
+            if recs:
+                for rec in recs:
+                    with st.expander(f"💡 {rec['product']} → {rec['reason']}"):
+                        if st.button(f"🧩 Run {rec['product']}", key=rec['product']):
+                            payload = {
+                                "description": sugg_stack,
+                                "context": {"force_product": rec["product"]},
+                                "client_id": sugg_client
+                            }
+                            res = requests.post(f"{API_URL}/stack/auto-integrate", json=payload)
+                            st.success("✅ Triggered")
+                            st.json(res.json())
+            else:
+                st.info("No actionable suggestions found.")
+        except Exception as e:
+            st.error(f"Suggestion fetch failed: {e}")
