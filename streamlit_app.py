@@ -9,8 +9,8 @@ from datetime import datetime
 st.set_page_config(page_title="OptiSys Console", layout="wide")
 st.title("🎯 OptiSys Launch Console")
 
-API_URL = "http://localhost:8000"  # Replace if deployed
-WS_HOST = "ws://localhost:8000"
+https://optisys-agent-production.up.railway.app/health
+https://optisys-agent-production.up.railway.app/client/info/demo-client
 
 PRODUCTS = [
     "SecurePact", "CarbonIQ", "StratEx", "DataLakeIQ",
