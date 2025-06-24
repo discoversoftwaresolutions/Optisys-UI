@@ -51,8 +51,8 @@ def render(client_id):
             ws_url = f"{WS_HOST}/ws/progress?product={product}&customer_id={client}"
             stream_logs(sid, ws_url)
 
-# --- Tab 2: Stack-Based Dispatcher ---
-with tab2:
+    # --- Tab 2: Stack-Based Dispatcher ---
+    with tab2:
     st.subheader("⚙️ Describe Your Stack")
     stack = st.text_area("Stack Description", placeholder="e.g., FastAPI + GCP + PostgreSQL")
     context = st.text_area("Optional JSON Context", value='{}')
