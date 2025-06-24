@@ -7,3 +7,4 @@ asyncio
 python-dotenv
 streamlit-extras
 websocket-client
+openai==1.30.1
