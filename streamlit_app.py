@@ -9,8 +9,25 @@ from datetime import datetime
 st.set_page_config(page_title="OptiSys Console", layout="wide")
 st.title("🎯 OptiSys Launch Console")
 
-https://optisys-agent-production.up.railway.app/health
-https://optisys-agent-production.up.railway.app/client/info/demo-client
+# ✅ Backend URLs
+API_URL = "https://optisys-agent-production.up.railway.app"
+WS_HOST = "wss://optisys-agent-production.up.railway.app"
+
+health_url = f"{API_URL}/health"
+client_info_url = f"{API_URL}/client/info/demo-client"
+
+# ✅ Connectivity checks (prints to terminal for debugging)
+try:
+    health_response = requests.get(health_url)
+    print("Health check:", health_response.status_code, health_response.json())
+except Exception as e:
+    print("Health check failed:", e)
+
+try:
+    client_response = requests.get(client_info_url)
+    print("Client info:", client_response.status_code, client_response.json())
+except Exception as e:
+    print("Client info check failed:", e)
 
 PRODUCTS = [
     "SecurePact", "CarbonIQ", "StratEx", "DataLakeIQ",
@@ -52,8 +69,8 @@ def render(client_id):
         st.subheader("⚙️ Describe Your Stack")
         stack = st.text_area("Stack Description", placeholder="e.g., FastAPI + GCP + PostgreSQL")
         context = st.text_area("Optional JSON Context", value='{}')
-
         col1, col2 = st.columns(2)
+
         if col1.button("🔄 Run Integration"):
             try:
                 resp = requests.post(f"{API_URL}/stack/auto-integrate", json={
@@ -138,6 +155,7 @@ def render(client_id):
     with tab6:
         st.subheader("🔑 Client Secret Manager")
         target_client = st.text_input("Client ID", value="demo-client", key="client_id_secrets")
+
         if st.button("🔍 Check Secrets"):
             try:
                 r = requests.get(f"{API_URL}/client/secrets/check/{target_client}")
@@ -196,6 +214,6 @@ def render(client_id):
 
         st.caption("Pro Tip: Use `check_backend.py` locally to validate endpoints fast.")
 
-# Launch it
+# ✅ Launch it
 if __name__ == "__main__":
     render("demo-client")
