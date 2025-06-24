@@ -9,25 +9,22 @@ from datetime import datetime
 st.set_page_config(page_title="OptiSys Console", layout="wide")
 st.title("🎯 OptiSys Launch Console")
 
-# ✅ Backend URLs
+# ✅ API and WebSocket base URLs
 API_URL = "https://optisys-agent-production.up.railway.app"
 WS_HOST = "wss://optisys-agent-production.up.railway.app"
 
-health_url = f"{API_URL}/health"
-client_info_url = f"{API_URL}/client/info/demo-client"
-
-# ✅ Connectivity checks (prints to terminal for debugging)
+# Optional: perform health check and client check in the terminal
 try:
-    health_response = requests.get(health_url)
-    print("Health check:", health_response.status_code, health_response.json())
+    health = requests.get(f"{API_URL}/health").json()
+    print("✅ Health:", health)
 except Exception as e:
-    print("Health check failed:", e)
+    print("❌ Health check failed:", e)
 
 try:
-    client_response = requests.get(client_info_url)
-    print("Client info:", client_response.status_code, client_response.json())
+    client_info = requests.get(f"{API_URL}/client/info/demo-client").json()
+    print("👤 Client Info:", client_info)
 except Exception as e:
-    print("Client info check failed:", e)
+    print("⚠️ Client info fetch failed:", e)
 
 PRODUCTS = [
     "SecurePact", "CarbonIQ", "StratEx", "DataLakeIQ",
@@ -116,15 +113,20 @@ def render(client_id):
         product_payload = st.text_area("Product JSON", placeholder='[{"name": "BoostX", "category": "add-on"}]')
 
         if st.button("Upload"):
-            try:
-                parsed = json.loads(product_payload)
-                r = requests.post(f"{API_URL}/client/products/upload", json={
-                    "client_id": c_id,
-                    "products": parsed
-                })
-                st.success(f"✅ Uploaded {len(parsed)} products")
-            except Exception as e:
-                st.error(f"Upload failed: {e}")
+            if not product_payload.strip():
+                st.warning("⚠️ Product JSON is empty—please provide at least one product.")
+            else:
+                try:
+                    parsed = json.loads(product_payload)
+                    r = requests.post(f"{API_URL}/client/products/upload", json={
+                        "client_id": c_id,
+                        "products": parsed
+                    })
+                    st.success(f"✅ Uploaded {len(parsed)} products")
+                except json.JSONDecodeError as e:
+                    st.error(f"❌ Invalid JSON: {e}")
+                except Exception as e:
+                    st.error(f"Upload failed: {e}")
 
     with tab5:
         st.subheader("📊 Latest Optimization Snapshot")
@@ -155,7 +157,6 @@ def render(client_id):
     with tab6:
         st.subheader("🔑 Client Secret Manager")
         target_client = st.text_input("Client ID", value="demo-client", key="client_id_secrets")
-
         if st.button("🔍 Check Secrets"):
             try:
                 r = requests.get(f"{API_URL}/client/secrets/check/{target_client}")
@@ -210,10 +211,4 @@ def render(client_id):
             st.info("Client Metadata (demo-client):")
             st.json(client_data)
         except Exception as e:
-            st.warning(f"⚠️ Could not fetch client info: {e}")
-
-        st.caption("Pro Tip: Use `check_backend.py` locally to validate endpoints fast.")
-
-# ✅ Launch it
-if __name__ == "__main__":
-    render("demo-client")
+            st.warning(f"
