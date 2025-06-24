@@ -34,12 +34,13 @@ def stream_logs(session_id, ws_url):
     threading.Thread(target=run, daemon=True).start()
     time.sleep(1)
 
-# --- Tabs ---
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📡 Live Logs", "📦 Stack Engine", "🧠 AgentBridge",
-    "🗂 Upload Products", "📊 System Pulse"
-])
-
+def render(client_id):
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+        "📡 Live Logs", "📦 Stack Engine", "🧠 AgentBridge", 
+        "🗂 Upload Products", "📊 System Pulse", 
+        "🔐 Credentials", "💡 Suggestions"
+    ])
+    
 # --- Tab 1: Live Log Stream ---
 with tab1:
     st.subheader("🖥️ Real-Time Integration Logs")
@@ -157,3 +158,33 @@ with tab6:
                 st.success("🟢 All required secrets provided.")
         except Exception as e:
             st.error(f"Secret check failed: {e}")
+
+    # --- Tab 7: LLM Suggestions ---
+    with tab7:
+        st.subheader("💡 AI-Curated Stack Suggestions")
+        sugg_client = st.text_input("Client ID", value=client_id)
+        sugg_stack = st.text_area("Stack Description", placeholder="e.g. Redis + AWS Lambda + PostgreSQL")
+
+        if st.button("Get Suggestions"):
+            try:
+                r = requests.get(f"{API_URL}/stack/suggestions", params={
+                    "client_id": sugg_client,
+                    "stack": sugg_stack
+                })
+                recs = r.json().get("recommendations", [])
+                if recs:
+                    for rec in recs:
+                        with st.expander(f"💡 {rec['product']} → {rec['reason']}"):
+                            if st.button(f"🧩 Run {rec['product']}", key=rec['product']):
+                                payload = {
+                                    "description": sugg_stack,
+                                    "context": {"force_product": rec["product"]},
+                                    "client_id": sugg_client
+                                }
+                                res = requests.post(f"{API_URL}/stack/auto-integrate", json=payload)
+                                st.success("✅ Triggered")
+                                st.json(res.json())
+                else:
+                    st.info("No actionable suggestions found.")
+            except Exception as e:
+                st.error(f"Suggestion fetch failed: {e}")
