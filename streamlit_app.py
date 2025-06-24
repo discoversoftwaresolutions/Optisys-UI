@@ -6,12 +6,12 @@ import time
 import json
 from datetime import datetime
 
-# ✅ MUST be first Streamlit call
+# ✅ Must be first Streamlit call
 st.set_page_config(page_title="OptiSys Console", layout="wide")
 st.title("🎯 OptiSys Launch Console")
 
-API_URL = "http://localhost:8000"  # Replace with deployed backend
-WS_HOST = "ws://localhost:8000"    # Replace for WebSocket if hosted
+API_URL = "http://localhost:8000"
+WS_HOST = "ws://localhost:8000"
 
 PRODUCTS = [
     "SecurePact", "CarbonIQ", "StratEx", "DataLakeIQ",
@@ -44,7 +44,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 with tab1:
     st.subheader("🖥️ Real-Time Integration Logs")
     product = st.selectbox("Product", PRODUCTS)
-    client = st.text_input("Client ID", value="demo-client")
+    client = st.text_input("Client ID", value="demo-client", key="client_id_logs")
     if st.button("Stream Logs"):
         sid = f"{product}_{client}"
         ws_url = f"{WS_HOST}/ws/progress?product={product}&customer_id={client}"
@@ -78,8 +78,8 @@ with tab2:
 # --- Tab 3: AgentBridge Trigger ---
 with tab3:
     st.subheader("🤖 Agent-to-Agent Invocation")
-    agent_id = st.text_input("Agent ID", value="store-optimizer-01")
-    client_id = st.text_input("Client ID", value="acme-corp")
+    agent_id = st.text_input("Agent ID", value="store-optimizer-01", key="agent_id")
+    client_id = st.text_input("Client ID", value="acme-corp", key="client_id_agent")
     intent = st.selectbox("Intent", ["optimize", "auto_integrate"])
     data = st.text_area("Payload (JSON)", value='{"metrics": {"cpu_usage": 85, "memory_usage": 74, "latency": 210}}')
 
@@ -100,7 +100,7 @@ with tab3:
 # --- Tab 4: Upload Product Set ---
 with tab4:
     st.subheader("📦 Upload Client Products")
-    c_id = st.text_input("Client ID for Upload", value="demo-client")
+    c_id = st.text_input("Client ID for Upload", value="demo-client", key="client_id_upload")
     product_payload = st.text_area("Product JSON", placeholder='[{"name": "BoostX", "category": "add-on"}]')
 
     if st.button("Upload"):
@@ -117,7 +117,7 @@ with tab4:
 # --- Tab 5: System Pulse / Optimization Preview ---
 with tab5:
     st.subheader("📊 Latest Optimization Snapshot")
-    cid = st.text_input("Client ID to Diagnose", value="demo-client-opt")
+    cid = st.text_input("Client ID to Diagnose", value="demo-client-opt", key="client_id_opt")
     metrics = st.text_area("Live Metrics (JSON)", value='{"cpu_usage": 88, "memory_usage": 72, "latency": 250}')
     region = st.selectbox("Region", ["us", "eu", "de", "asia"])
     stack = st.text_area("Current Stack (JSON)", value='{"data_types":["PHI"], "hipaa_certified": false, "data_encryption_at_rest": false}')
@@ -145,7 +145,7 @@ with tab5:
 tab6 = st.tabs(["🔐 Credentials"])[0]
 with tab6:
     st.subheader("🔑 Client Secret Manager")
-    target_client = st.text_input("Client ID", value="demo-client")
+    target_client = st.text_input("Client ID", value="demo-client", key="client_id_secrets")
     if st.button("🔍 Check Secrets"):
         try:
             r = requests.get(f"{API_URL}/client/secrets/check/{target_client}")
