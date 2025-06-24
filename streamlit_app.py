@@ -32,12 +32,11 @@ def stream_logs(session_id, ws_url):
     threading.Thread(target=run, daemon=True).start()
     time.sleep(1)
 
-def render(client_id):
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-        "📡 Live Logs", "📦 Stack Engine", "🧠 AgentBridge", 
-        "🗂 Upload Products", "📊 System Pulse", 
-        "🔐 Credentials", "💡 Suggestions"
-    ])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+    "📡 Live Logs", "📦 Stack Engine", "🧠 AgentBridge", 
+    "🗂 Upload Products", "📊 System Pulse", 
+    "🔐 Credentials", "💡 Suggestions", "🧭 Backend Pulse"
+])
 
     with tab1:
         st.subheader("🖥️ Real-Time Integration Logs")
@@ -178,6 +177,25 @@ def render(client_id):
                     st.info("No actionable suggestions found.")
             except Exception as e:
                 st.error(f"Suggestion fetch failed: {e}")
+
+    # --- Tab 8: Backend Pulse ---
+    with tab8:
+        st.subheader("🧭 Backend Health & Diagnostics")
+
+        try:
+            health = requests.get(f"{API_URL}/health").json()
+            st.success(f"API Status: 🟢 {health.get('status', 'unknown')}")
+        except Exception as e:
+            st.error(f"❌ /health route unreachable: {e}")
+
+        try:
+            client_data = requests.get(f"{API_URL}/client/info/demo-client").json()
+            st.info("Client Metadata (demo-client):")
+            st.json(client_data)
+        except Exception as e:
+            st.warning(f"⚠️ Could not fetch client info: {e}")
+
+        st.caption("Pro Tip: Use `check_backend.py` locally to validate endpoints fast.")
 
 # --- Launch Dashboard ---
 if __name__ == "__main__":
