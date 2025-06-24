@@ -39,7 +39,7 @@ def render(client_id):
         "🗂 Upload Products", "📊 System Pulse", "🔐 Credentials", "🧭 Backend Pulse"
     ])
 
-    # Tab 1 – Logs
+    # Tab 1 – Live Logs
     with tab1:
         st.subheader("🖥️ Integration Logs")
         product = st.selectbox("Product", PRODUCTS)
@@ -70,9 +70,12 @@ def render(client_id):
         if col2.button("🎙️ Use Voice Input"):
             audio = st.file_uploader("Upload voice (WAV/MP3)", type=["wav", "mp3", "m4a"])
             if audio:
-                resp = requests.post(f"{API_URL}/stack/voice-integrate", files={"file": audio})
-                st.success("✅ Transcribed")
-                st.json(resp.json())
+                try:
+                    resp = requests.post(f"{API_URL}/stack/voice-integrate", files={"file": audio})
+                    st.success("✅ Transcribed")
+                    st.json(resp.json())
+                except Exception as e:
+                    st.error(f"Voice integration failed: {e}")
 
     # Tab 3 – AgentBridge
     with tab3:
@@ -120,7 +123,7 @@ def render(client_id):
                 except Exception as e:
                     st.error(f"Upload failed: {e}")
 
-    # Tab 5 – System Pulse
+    # Tab 5 – Optimization Snapshot
     with tab5:
         st.subheader("📊 Optimization Snapshot")
         opt_cid = st.text_input("Client ID", value=f"{client_id}-opt", key="pulse_cid")
@@ -155,7 +158,7 @@ def render(client_id):
             try:
                 r = requests.get(f"{API_URL}/client/secrets/check/{cid}")
                 data = r.json()
-                if data["missing"]:
+                if data.get("missing"):
                     st.warning(f"❌ Missing: {data['missing']}")
                 else:
                     st.success("✅ All secrets present.")
@@ -178,6 +181,6 @@ def render(client_id):
         except Exception as e:
             st.warning(f"Client info unavailable: {e}")
 
-# Launch it
+# Entry point
 if __name__ == "__main__":
     render("demo-client")
