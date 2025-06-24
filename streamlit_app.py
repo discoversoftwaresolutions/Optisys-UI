@@ -8,7 +8,6 @@ import json
 st.set_page_config(page_title="OptiSys Console", layout="wide")
 st.title("🎯 OptiSys Launch Console")
 
-# Constants
 API_URL = "https://optisys-agent-production.up.railway.app"
 WS_HOST = "wss://optisys-agent-production.up.railway.app"
 PRODUCTS = [
@@ -16,7 +15,15 @@ PRODUCTS = [
     "IntellicoreAGI", "ProverbsAPI", "Nexonomy", "Enginuty", "HoloUX"
 ]
 
-# Live WebSocket Log Streamer
+# Sample stack descriptions
+STACK_TEMPLATES = [
+    "",
+    "FastAPI + GCP + PostgreSQL",
+    "Shopify + AWS + DynamoDB",
+    "Streamlit + Azure + CosmosDB",
+    "Next.js + Vercel + Firebase"
+]
+
 def stream_logs(session_id, ws_url):
     log_container = st.empty()
     logs = []
@@ -32,14 +39,13 @@ def stream_logs(session_id, ws_url):
     threading.Thread(target=run, daemon=True).start()
     time.sleep(1)
 
-# App Tabs
 def render(client_id):
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
         "📡 Live Logs", "📦 Stack Engine", "🧠 AgentBridge",
         "🗂 Upload Products", "📊 System Pulse", "🔐 Credentials", "🧭 Backend Pulse"
     ])
 
-    # Tab 1 – Live Logs
+    # Tab 1 – Logs
     with tab1:
         st.subheader("🖥️ Integration Logs")
         product = st.selectbox("Product", PRODUCTS)
@@ -52,20 +58,25 @@ def render(client_id):
     # Tab 2 – Stack Engine
     with tab2:
         st.subheader("⚙️ Describe Your Stack")
-        desc = st.text_area("Stack Description", placeholder="e.g., FastAPI + GCP + PostgreSQL")
+        selected = st.selectbox("Or pick a template", STACK_TEMPLATES)
+        desc = st.text_area("Stack Description", value=selected or "", placeholder="e.g., FastAPI + GCP + PostgreSQL")
         context = st.text_area("Optional JSON Context", value="{}")
         col1, col2 = st.columns(2)
 
         if col1.button("🔄 Auto Integrate"):
-            try:
-                resp = requests.post(f"{API_URL}/stack/auto-integrate", json={
-                    "description": desc,
-                    "context": json.loads(context or "{}")
-                })
-                st.success("✅ Integration Triggered")
-                st.json(resp.json())
-            except Exception as e:
-                st.error(f"Error: {e}")
+            if not desc.strip():
+                st.warning("⚠️ Please enter a stack description before triggering integration.")
+            else:
+                try:
+                    payload = {
+                        "description": desc.strip(),
+                        "context": json.loads(context or "{}")
+                    }
+                    resp = requests.post(f"{API_URL}/stack/auto-integrate", json=payload)
+                    st.success("✅ Integration Triggered")
+                    st.json(resp.json())
+                except Exception as e:
+                    st.error(f"Integration failed: {e}")
 
         if col2.button("🎙️ Use Voice Input"):
             audio = st.file_uploader("Upload voice (WAV/MP3)", type=["wav", "mp3", "m4a"])
@@ -181,6 +192,6 @@ def render(client_id):
         except Exception as e:
             st.warning(f"Client info unavailable: {e}")
 
-# Entry point
+# Run app
 if __name__ == "__main__":
     render("demo-client")
