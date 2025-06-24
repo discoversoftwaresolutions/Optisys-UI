@@ -40,16 +40,16 @@ def render(client_id):
         "🗂 Upload Products", "📊 System Pulse", 
         "🔐 Credentials", "💡 Suggestions"
     ])
-    
-# --- Tab 1: Live Log Stream ---
-with tab1:
-    st.subheader("🖥️ Real-Time Integration Logs")
-    product = st.selectbox("Product", PRODUCTS)
-    client = st.text_input("Client ID", value="demo-client", key="client_id_logs")
-    if st.button("Stream Logs"):
-        sid = f"{product}_{client}"
-        ws_url = f"{WS_HOST}/ws/progress?product={product}&customer_id={client}"
-        stream_logs(sid, ws_url)
+
+    # --- Tab 1: Live Log Stream ---
+    with tab1:
+        st.subheader("🖥️ Real-Time Integration Logs")
+        product = st.selectbox("Product", PRODUCTS)
+        client = st.text_input("Client ID", value="demo-client", key="client_id_logs")
+        if st.button("Stream Logs"):
+            sid = f"{product}_{client}"
+            ws_url = f"{WS_HOST}/ws/progress?product={product}&customer_id={client}"
+            stream_logs(sid, ws_url)
 
 # --- Tab 2: Stack-Based Dispatcher ---
 with tab2:
