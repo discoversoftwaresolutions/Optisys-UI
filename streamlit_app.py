@@ -211,7 +211,8 @@ def render(client_id):
             st.info("Client Metadata (demo-client):")
             st.json(client_data)
         except Exception as e:
-            st.warning(f"
+            st.warning(f"⚠️ Could not fetch client info: {e}")
+            
 # ✅ Launch it
 if __name__ == "__main__":
     render("demo-client")            
