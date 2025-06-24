@@ -1,9 +1,14 @@
+import streamlit as st
 import requests
 import websocket
 import threading
 import time
 import json
 from datetime import datetime
+
+# ✅ MUST be first Streamlit call
+st.set_page_config(page_title="OptiSys Console", layout="wide")
+st.title("🎯 OptiSys Launch Console")
 
 API_URL = "http://localhost:8000"  # Replace with deployed backend
 WS_HOST = "ws://localhost:8000"    # Replace for WebSocket if hosted
@@ -12,9 +17,6 @@ PRODUCTS = [
     "SecurePact", "CarbonIQ", "StratEx", "DataLakeIQ",
     "IntellicoreAGI", "ProverbsAPI", "Nexonomy", "Enginuty", "HoloUX"
 ]
-
-st.set_page_config(page_title="OptiSys Console", layout="wide")
-st.title("🎯 OptiSys Launch Console")
 
 # --- WebSocket Logging ---
 def stream_logs(session_id, ws_url):
@@ -139,6 +141,7 @@ with tab5:
         except Exception as e:
             st.error(f"Agent run failed: {e}")
 
+# --- Tab 6: Client Credentials ---
 tab6 = st.tabs(["🔐 Credentials"])[0]
 with tab6:
     st.subheader("🔑 Client Secret Manager")
