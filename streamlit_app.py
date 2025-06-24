@@ -6,8 +6,8 @@ import time
 import json
 from datetime import datetime
 
-API_URL = "http://localhost:8000"
-WS_HOST = "ws://localhost:8000"
+API_URL = "https://optisys-api.up.railway.app"
+WS_HOST = "wss://optisys-api.up.railway.app"
 
 PRODUCTS = [
     "SecurePact", "CarbonIQ", "StratEx", "DataLakeIQ",
