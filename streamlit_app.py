@@ -179,3 +179,5 @@ def render(client_id):
                     st.info("No actionable suggestions found.")
             except Exception as e:
                 st.error(f"Suggestion fetch failed: {e}")
+# ✅ This must be here:
+console.render(client_id)
