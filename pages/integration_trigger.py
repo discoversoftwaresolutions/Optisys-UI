@@ -53,11 +53,16 @@ with st.form("integration_form"):
         }
 
     elif cloud_provider == "Oracle":
+        if st.session_state.show_secrets:
+            private_key = st.text_area("Private Key PEM")
+        else:
+            private_key = st.text_input("Private Key PEM", type="password")
+
         cloud_credentials = {
             "tenancy_ocid": st.text_input("Oracle Tenancy OCID"),
             "user_ocid": st.text_input("Oracle User OCID"),
             "fingerprint": st.text_input("API Key Fingerprint"),
-            "private_key": st.text_area("Private Key PEM", type=None if st.session_state.show_secrets else "password"),
+            "private_key": private_key,
             "region": st.text_input("Oracle Region", value="us-ashburn-1")
         }
 
@@ -88,6 +93,7 @@ if submitted:
             st.error(f"❌ Integration failed with status {response.status_code}: {response.text}")
         except Exception as e:
             st.error(f"💥 Unexpected error: {e}")
+
 session_id = f"{product}_{customer_id}"
 
 st.components.v1.html(f"""
